@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { MessageSquare, Copy, Check, Loader2, ArrowLeft, Send } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function AIReportGenerator() {
   const [content, setContent] = useState("");
@@ -26,10 +28,27 @@ export default function AIReportGenerator() {
         body: JSON.stringify({ content, type }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "生成失败");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "生成失败");
+      }
 
-      setReport(data.report);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("浏览器不支持流式传输");
+
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulatedReport = "";
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          const chunk = decoder.decode(value);
+          accumulatedReport += chunk;
+          setReport(accumulatedReport);
+        }
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -120,8 +139,10 @@ export default function AIReportGenerator() {
               </button>
             )}
           </div>
-          <div className="w-full h-[400px] p-5 border border-gray-200 rounded-3xl bg-gray-50 overflow-auto text-gray-700 whitespace-pre-wrap leading-relaxed shadow-inner">
-            {report || (
+          <div className="w-full h-[400px] p-5 border border-gray-200 rounded-3xl bg-gray-50 overflow-auto text-gray-700 leading-relaxed shadow-inner prose prose-sm max-w-none">
+            {report ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{report}</ReactMarkdown>
+            ) : (
               <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-2 opacity-50">
                 <MessageSquare className="w-10 h-10 mb-2" />
                 <p className="text-sm">等待生成逻辑严密的汇报...</p>

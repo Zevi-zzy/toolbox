@@ -44,7 +44,7 @@ export default function AIKnowledgeCard() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "生成失败");
 
-      setCardData(data);
+      setCardData(data.cardData);
     } catch (err: any) {
       setError(err.message);
     } finally {

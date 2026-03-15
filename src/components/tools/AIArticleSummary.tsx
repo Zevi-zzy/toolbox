@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FileText, Link as LinkIcon, Loader2, ArrowLeft, Copy, Check, Sparkles } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function AIArticleSummary() {
   const [url, setUrl] = useState("");
@@ -25,10 +27,27 @@ export default function AIArticleSummary() {
         body: JSON.stringify({ url }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "总结失败");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "总结失败");
+      }
 
-      setSummary(data.summary);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("浏览器不支持流式传输");
+
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulatedSummary = "";
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          const chunk = decoder.decode(value);
+          accumulatedSummary += chunk;
+          setSummary(accumulatedSummary);
+        }
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -101,8 +120,8 @@ export default function AIArticleSummary() {
                 {copied ? "已复制" : "复制全文"}
               </button>
             </div>
-            <div className="w-full min-h-[300px] p-8 border border-gray-200 rounded-3xl bg-gray-50 text-gray-700 whitespace-pre-wrap leading-relaxed shadow-inner prose prose-purple max-w-none">
-              {summary}
+            <div className="w-full min-h-[300px] p-8 border border-gray-200 rounded-3xl bg-gray-50 text-gray-700 leading-relaxed shadow-inner prose prose-purple max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{summary}</ReactMarkdown>
             </div>
           </div>
         )}

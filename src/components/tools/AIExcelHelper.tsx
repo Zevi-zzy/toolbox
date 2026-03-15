@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { FileSpreadsheet, Copy, Check, Loader2, ArrowLeft, Lightbulb, Code, Box, Key } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function AIExcelHelper() {
   const [activeTab, setActiveTab] = useState<"ui" | "api">("ui");
@@ -27,10 +29,27 @@ export default function AIExcelHelper() {
         body: JSON.stringify({ prompt: input }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "生成失败");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "生成失败");
+      }
 
-      setResult(data.result);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("浏览器不支持流式传输");
+
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulatedResult = "";
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          const chunk = decoder.decode(value);
+          accumulatedResult += chunk;
+          setResult(accumulatedResult);
+        }
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -132,8 +151,10 @@ export default function AIExcelHelper() {
                 </button>
               )}
             </div>
-            <div className="w-full h-[400px] p-4 border border-gray-200 rounded-2xl bg-gray-50 overflow-auto text-gray-700 whitespace-pre-wrap prose prose-sm max-w-none">
-              {result || (
+            <div className="w-full h-[400px] p-4 border border-gray-200 rounded-2xl bg-gray-50 overflow-auto text-gray-700 prose prose-sm max-w-none">
+              {result ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
+              ) : (
                 <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-2">
                   <FileSpreadsheet className="w-8 h-8 opacity-20" />
                   <p className="text-sm">在这里展示 AI 生成的公式和说明</p>

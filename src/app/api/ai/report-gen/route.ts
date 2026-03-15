@@ -1,13 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { createRouteClient } from '@/lib/supabase-server';
 import { checkUsage, incrementUsage } from '@/lib/usage';
+import { toolPrompts, callMiniMaxStream } from '@/services/ai';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { content, type } = await req.json();
+    const { content, type = 'weekly' } = await req.json();
 
     if (!content) {
-      return NextResponse.json({ error: '请提供工作内容' }, { status: 400 });
+      return new Response(JSON.stringify({ error: '需求描述不能为空' }), { status: 400 });
     }
 
     // 鉴权与次数限制检查
@@ -15,57 +16,47 @@ export async function POST(req: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: '请先登录后使用' }, { status: 401 });
+      return new Response(JSON.stringify({ error: '请先登录后使用' }), { status: 401 });
     }
 
     const { allowed } = await checkUsage(user.id);
     if (!allowed) {
-      return NextResponse.json({ error: '免费额度已用完，请升级 Pro 或联系商务合作' }, { status: 403 });
+      return new Response(JSON.stringify({ error: '免费额度已用完，请升级 Pro 或联系商务合作' }), { status: 403 });
     }
 
-    const apiKey = process.env.MINIMAX_API_KEY;
-    const url = 'https://api.minimax.io/v1/text/chatcompletion_v2';
-
-    const systemPrompt = type === 'weekly' 
-      ? '你是一个专业的职场导师。你的任务是将用户提供的零散工作内容整理成一份逻辑严密、重点突出、格式规范的【周报】。包含：本周完成情况（分类整理）、遇到的问题与解决方案、下周工作计划。语气要客观、专业、有结果导向。'
-      : '你是一个高效率的行政主管。你的任务是将用户提供的工作内容整理成一份精炼的【每日汇报】。突出今日核心产出，简述明日计划。';
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'MiniMax-M2.5',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `以下是我的工作内容，请帮我整理成${type === 'weekly' ? '周报' : '日报'}：\n\n${content}` },
-        ],
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('MiniMax API Error:', response.status, errorText);
-      return NextResponse.json({ error: `AI 服务异常 (${response.status})` }, { status: response.status });
-    }
-
-    const data = await response.json();
-    const report = data.choices?.[0]?.message?.content;
-
-    if (!report) {
-      console.error('MiniMax Unexpected Response:', data);
-      throw new Error('AI 未能生成有效的汇报内容，请稍后重试');
-    }
-
-    // 成功后增加使用次数
+    // 增加使用次数
     await incrementUsage(user.id);
 
-    return NextResponse.json({ report });
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          await callMiniMaxStream(
+            [
+              { role: 'system', content: toolPrompts['report-gen'].system(type) },
+              { role: 'user', content: toolPrompts['report-gen'].user(content) },
+            ],
+            (chunk) => {
+              controller.enqueue(encoder.encode(chunk));
+            }
+          );
+          controller.close();
+        } catch (error: any) {
+          console.error('Stream Error:', error);
+          controller.error(error);
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (error: any) {
-    console.error('Report Gen API Error:', error);
-    return NextResponse.json({ error: error.message || '系统内部错误' }, { status: 500 });
+    console.error('Report Generator API Error:', error);
+    return new Response(JSON.stringify({ error: error.message || '系统内部错误' }), { status: 500 });
   }
 }

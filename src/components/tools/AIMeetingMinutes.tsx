@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { MessageSquare, Copy, Check, Loader2, ArrowLeft, ClipboardList, PenLine } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function AIMeetingMinutes() {
   const [input, setInput] = useState("");
@@ -25,10 +27,27 @@ export default function AIMeetingMinutes() {
         body: JSON.stringify({ content: input }),
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "整理失败");
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "整理失败");
+      }
 
-      setResult(data.minutes);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("浏览器不支持流式传输");
+
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulatedResult = "";
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          const chunk = decoder.decode(value);
+          accumulatedResult += chunk;
+          setResult(accumulatedResult);
+        }
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -100,8 +119,10 @@ export default function AIMeetingMinutes() {
               </button>
             )}
           </div>
-          <div className="w-full h-[530px] p-5 border border-gray-200 rounded-3xl bg-gray-50 overflow-auto text-gray-700 whitespace-pre-wrap leading-relaxed shadow-inner prose prose-sm max-w-none">
-            {result || (
+          <div className="w-full h-[530px] p-5 border border-gray-200 rounded-3xl bg-gray-50 overflow-auto text-gray-700 leading-relaxed shadow-inner prose prose-sm max-w-none">
+            {result ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
+            ) : (
               <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-2 opacity-50">
                 <ClipboardList className="w-10 h-10 mb-2" />
                 <p className="text-sm">生成的标准纪要将在这里展示</p>

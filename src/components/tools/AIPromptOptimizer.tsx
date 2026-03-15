@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Wand2, Copy, Check, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function AIPromptOptimizer() {
   const [inputPrompt, setInputPrompt] = useState("");
@@ -27,13 +29,27 @@ export default function AIPromptOptimizer() {
         body: JSON.stringify({ prompt: inputPrompt }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.error || "优化失败，请稍后重试");
       }
 
-      setOptimizedPrompt(data.optimizedPrompt);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("浏览器不支持流式传输");
+
+      const decoder = new TextDecoder();
+      let done = false;
+      let accumulatedPrompt = "";
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          const chunk = decoder.decode(value);
+          accumulatedPrompt += chunk;
+          setOptimizedPrompt(accumulatedPrompt);
+        }
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -99,8 +115,10 @@ export default function AIPromptOptimizer() {
               </button>
             )}
           </div>
-          <div className="w-full h-64 p-4 border border-gray-200 rounded-2xl bg-gray-50 overflow-auto text-gray-700 whitespace-pre-wrap">
-            {optimizedPrompt || (
+          <div className="w-full h-64 p-4 border border-gray-200 rounded-2xl bg-gray-50 overflow-auto text-gray-700 prose prose-sm max-w-none">
+            {optimizedPrompt ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{optimizedPrompt}</ReactMarkdown>
+            ) : (
               <div className="h-full flex flex-col items-center justify-center text-gray-400 space-y-2">
                 <Wand2 className="w-8 h-8 opacity-20" />
                 <p className="text-sm">等待优化...</p>
