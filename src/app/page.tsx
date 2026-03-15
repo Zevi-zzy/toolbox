@@ -1,11 +1,13 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from "react";
 import { Search, Mail, FileSpreadsheet, Wand2, FileText, Layout, MessageSquare, Sparkles, UserCircle, Network, Box } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import SkillsModal from "@/components/tools/SkillsModal";
-import DeveloperPage from "./dashboard/developer/page";
+import { DeveloperContent } from "@/components/developer/DeveloperContent";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("全部");
@@ -255,7 +257,7 @@ export default function Home() {
 
       {/* 开发者平台直接展示在首页 */}
       <div className="mt-24 pt-24 border-t border-gray-100">
-        <DeveloperPage isHome={true} />
+        <DeveloperContent isHome={true} />
       </div>
 
       <SkillsModal 
