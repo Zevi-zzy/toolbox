@@ -16,7 +16,7 @@ async function testAPI() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'abab6.5s-chat', // 使用一个基础模型测试
+          model: 'MiniMax-M2.5',
           messages: [{ role: 'user', content: 'hi' }],
         }),
       });

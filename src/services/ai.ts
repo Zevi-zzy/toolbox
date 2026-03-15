@@ -16,6 +16,7 @@ export async function callMiniMaxStream(messages: any[], onChunk: (chunk: string
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
+    cache: 'no-store',
   });
 
   if (!response.ok) {
@@ -73,6 +74,7 @@ export async function callMiniMax(messages: any[], responseFormat?: any) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
+    cache: 'no-store',
   });
 
   const data = await response.json();
