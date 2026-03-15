@@ -1,9 +1,12 @@
 "use client";
 
-import { Search, MessageCircle, BookOpen, Zap, Shield, Mail, FileText, Layout, FileSpreadsheet, Wand2 } from "lucide-react";
+import { useState } from "react";
+import { Search, MessageCircle, BookOpen, Zap, Shield, Mail, FileText, Layout, FileSpreadsheet, Wand2, ChevronRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 export default function HelpPage() {
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
   const faqs = [
     {
       question: "Toolbox 是什么？",
@@ -32,11 +35,49 @@ export default function HelpPage() {
   ];
 
   const categories = [
-    { icon: BookOpen, title: "入门指南", desc: "快速了解如何开始使用 Toolbox" },
-    { icon: Zap, title: "Pro 权益", desc: "了解订阅方案与会员专属功能" },
-    { icon: Shield, title: "账号安全", desc: "管理您的账户与隐私设置" },
-    { icon: Mail, title: "联系我们", desc: "寻求人工支持或商务合作咨询" }
+    { id: "getting-started", icon: BookOpen, title: "入门指南", desc: "快速了解如何开始使用 Toolbox" },
+    { id: "pro-benefits", icon: Zap, title: "Pro 权益", desc: "了解订阅方案与会员专属功能" },
+    { id: "account-security", icon: Shield, title: "账号安全", desc: "管理您的账户与隐私设置" },
+    { id: "contact-us", icon: Mail, title: "联系我们", desc: "寻求人工支持或商务合作咨询" }
   ];
+
+  const categoryDetails: Record<string, any> = {
+    "getting-started": {
+      title: "入门指南",
+      content: [
+        { title: "1. 注册与登录", desc: "点击右上角“登录/注册”，通过邮箱接收验证码或使用第三方快捷登录。登录后，您将获得初始的 10 次免费 AI 调用额度。" },
+        { title: "2. 选择适合您的工具", desc: "首页提供了 9 大工具。如果您需要处理网页内容，请选“网页总结”；需要整理会议逻辑，请选“会议纪要”；需要可视化，请选“思维导图”或“流程图”。" },
+        { title: "3. 极简输入体验", desc: "每个工具都设计得极度精简。只需粘贴文字、链接或描述需求，点击“一键生成”即可。AI 会自动处理格式并进行专业化排版。" },
+        { title: "4. 获取并导出结果", desc: "生成的结果支持 Markdown 渲染。图形工具（如脑图）提供“保存为图片”功能，您可以直接将高清图片用于汇报或分享。" }
+      ]
+    },
+    "pro-benefits": {
+      title: "Pro 权益",
+      content: [
+        { title: "无限次 AI 调用", desc: "Pro 会员享有 1000 次/月的超高额度，基本覆盖所有高强度办公场景，让您不再为额度焦虑。" },
+        { title: "高级工具优先体验", desc: "所有新研发的高级工具（如正在开发中的 AI 视频分析）将首先向 Pro 用户开放试用。" },
+        { title: "开发者 API & Skills", desc: "解锁 API 密钥生成功能，支持将 Toolbox 集成到 GPTs、Claude Actions 或您自有的自动化流程中。" },
+        { title: "响应速度与稳定性", desc: "Pro 用户请求将通过专属的高优先级通道处理，在高峰时段依然能保持极速响应。" }
+      ]
+    },
+    "account-security": {
+      title: "账号安全与隐私",
+      content: [
+        { title: "数据加密存储", desc: "Toolbox 基于 Supabase 强力驱动，采用企业级加密标准保护您的账户信息和 API 密钥。" },
+        { title: "输入内容不留存", desc: "我们承诺不存储用户输入的任何敏感文字或网页内容。AI 生成过程即传即走，保护您的商业机密。" },
+        { title: "支付安全保障", desc: "所有交易均通过国际知名支付平台 Lemon Squeezy 完成，我们不接触您的银行卡或信用卡敏感信息。" },
+        { title: "API 密钥随时吊销", desc: "在开发者中心，您可以随时删除旧的 API 密钥并生成新密钥，确保集成环境的安全。" }
+      ]
+    },
+    "contact-us": {
+      title: "联系我们",
+      content: [
+        { title: "技术支持邮件", desc: "在使用过程中遇到 Bug 或功能异常？请发送详细描述至 zevizhang@gmail.com，我们的技术团队通常会在 24 小时内回复。" },
+        { title: "商务与合作咨询", desc: "如果您有批量采购需求、定制化开发意向或媒体合作，欢迎通过邮件联系，并注明您的合作背景。" },
+        { title: "反馈与建议", desc: "Toolbox 还在快速迭代中。如果您希望增加某个特定场景的工具，请大方地告诉我们，您的建议极有可能出现在下个版本的更新日志中。" }
+      ]
+    }
+  };
 
   return (
     <div className="bg-[#fcfcfd] min-h-screen">
@@ -66,9 +107,17 @@ export default function HelpPage() {
         {/* Quick Links */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
           {categories.map((cat, i) => (
-            <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all cursor-pointer group">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <cat.icon className="w-6 h-6 text-blue-600" />
+            <div 
+              key={i} 
+              onClick={() => setActiveCategory(cat.id)}
+              className={`bg-white p-8 rounded-[2.5rem] border transition-all cursor-pointer group ${
+                activeCategory === cat.id ? "border-blue-600 shadow-xl shadow-blue-500/10" : "border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5"
+              }`}
+            >
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${
+                activeCategory === cat.id ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"
+              }`}>
+                <cat.icon className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">{cat.title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed">{cat.desc}</p>
@@ -77,22 +126,52 @@ export default function HelpPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          {/* FAQ Section */}
+          {/* Main Content Area */}
           <div className="lg:col-span-2">
-            <h2 className="text-3xl font-black text-gray-900 mb-10 flex items-center gap-3">
-              <MessageCircle className="w-8 h-8 text-blue-600" />
-              常见问题 (FAQ)
-            </h2>
-            <div className="space-y-6">
-              {faqs.map((faq, i) => (
-                <div key={i} className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">{faq.question}</h3>
-                  <p className="text-gray-500 leading-relaxed text-sm">
-                    {faq.answer}
-                  </p>
+            {activeCategory ? (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <button 
+                  onClick={() => setActiveCategory(null)}
+                  className="inline-flex items-center text-sm font-bold text-blue-600 mb-8 hover:gap-2 transition-all"
+                >
+                  返回常见问题
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <h2 className="text-3xl font-black text-gray-900 mb-10">
+                  {categoryDetails[activeCategory].title}
+                </h2>
+                <div className="space-y-8">
+                  {categoryDetails[activeCategory].content.map((item: any, i: number) => (
+                    <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex gap-6">
+                      <div className="flex-shrink-0 mt-1">
+                        <CheckCircle2 className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-3">{item.title}</h3>
+                        <p className="text-gray-500 leading-relaxed text-sm">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-3xl font-black text-gray-900 mb-10 flex items-center gap-3">
+                  <MessageCircle className="w-8 h-8 text-blue-600" />
+                  常见问题 (FAQ)
+                </h2>
+                <div className="space-y-6">
+                  {faqs.map((faq, i) => (
+                    <div key={i} className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
+                      <h3 className="text-lg font-bold text-gray-900 mb-4">{faq.question}</h3>
+                      <p className="text-gray-500 leading-relaxed text-sm">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
