@@ -15,10 +15,22 @@ export default function Home() {
       description: "输入网页或公众号链接，AI 帮你快速提炼核心内容与结论。",
       icon: FileText,
       category: "效率工具",
-      level: "高级",
+      level: "进阶",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       href: "/tools/ai-summary",
+    },
+    {
+      id: "ai-video",
+      name: "AI 视频分析",
+      description: "深度理解视频内容，提取关键画面与摘要。高级功能，即将上线。",
+      icon: Layout,
+      category: "多媒体",
+      level: "高级",
+      color: "text-gray-400",
+      bgColor: "bg-gray-50",
+      href: "#",
+      isComingSoon: true,
     },
     {
       id: "ai-mindmap",
@@ -148,40 +160,55 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredTools.map((tool) => (
-          <Link
-            key={tool.id}
-            href={tool.href}
-            className="group bg-white p-8 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all cursor-pointer"
-          >
-            <div className="flex justify-between items-start mb-6">
-              <div className={`w-12 h-12 rounded-xl ${tool.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <tool.icon className={`h-6 w-6 ${tool.color}`} />
+        {filteredTools.map((tool) => {
+          const CardContent = (
+            <div className={`h-full group bg-white p-8 rounded-2xl border border-gray-100 transition-all ${tool.isComingSoon ? 'opacity-60 cursor-not-allowed' : 'hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 cursor-pointer'}`}>
+              <div className="flex justify-between items-start mb-6">
+                <div className={`w-12 h-12 rounded-xl ${tool.bgColor} flex items-center justify-center ${!tool.isComingSoon && 'group-hover:scale-110'} transition-transform`}>
+                  <tool.icon className={`h-6 w-6 ${tool.color}`} />
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
+                    tool.level === "高级"
+                      ? "bg-purple-100 text-purple-700"
+                      : tool.level === "进阶" 
+                        ? "bg-blue-100 text-blue-700" 
+                        : "bg-gray-100 text-gray-600"
+                  }`}>
+                    {tool.level}
+                  </span>
+                  {tool.isComingSoon && (
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full uppercase">即将上线</span>
+                  )}
+                </div>
               </div>
-              <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
-                tool.level === "高级"
-                  ? "bg-purple-100 text-purple-700"
-                  : tool.level === "进阶" 
-                    ? "bg-blue-100 text-blue-700" 
-                    : "bg-gray-100 text-gray-600"
-              }`}>
-                {tool.level}
-              </span>
+              <h3 className={`text-xl font-bold text-gray-900 mb-3 ${!tool.isComingSoon && 'group-hover:text-blue-600'} transition-colors`}>
+                {tool.name}
+              </h3>
+              <p className="text-gray-500 leading-relaxed text-sm mb-6">
+                {tool.description}
+              </p>
+              {!tool.isComingSoon ? (
+                <div className="flex items-center text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">
+                  立即体验
+                  <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              ) : (
+                <div className="text-sm font-bold text-gray-400">敬请期待</div>
+              )}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-              {tool.name}
-            </h3>
-            <p className="text-gray-500 leading-relaxed text-sm mb-6">
-              {tool.description}
-            </p>
-            <div className="flex items-center text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">
-              立即体验
-              <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </Link>
-        ))}
+          );
+
+          return tool.isComingSoon ? (
+            <div key={tool.id}>{CardContent}</div>
+          ) : (
+            <Link key={tool.id} href={tool.href}>
+              {CardContent}
+            </Link>
+          );
+        })}
       </div>
       
       {filteredTools.length === 0 && (
