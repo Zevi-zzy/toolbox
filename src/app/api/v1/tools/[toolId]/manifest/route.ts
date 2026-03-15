@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const toolDefinitions: Record<string, any> = {
   'excel-helper': {
     name: 'AI Excel Helper',

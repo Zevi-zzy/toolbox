@@ -7,9 +7,8 @@ import { Transformer } from "markmap-lib";
 import { Markmap } from "markmap-view";
 import { toPng } from "html-to-image";
 
-const transformer = new Transformer();
-
 export default function AIMindmapGenerator() {
+  const transformer = useRef<Transformer | null>(null);
   const [content, setContent] = useState("");
   const [markdown, setMarkdown] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,6 +17,10 @@ export default function AIMindmapGenerator() {
   const svgRef = useRef<SVGSVGElement>(null);
   const mmRef = useRef<Markmap | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    transformer.current = new Transformer();
+  }, []);
 
   const handleGenerate = async () => {
     if (!content.trim()) return;
@@ -49,9 +52,9 @@ export default function AIMindmapGenerator() {
   };
 
   useEffect(() => {
-    if (markdown && svgRef.current) {
+    if (markdown && svgRef.current && transformer.current) {
       try {
-        const { root } = transformer.transform(markdown);
+        const { root } = transformer.current.transform(markdown);
         
         // 如果已经存在实例，则更新，否则创建
         if (mmRef.current) {

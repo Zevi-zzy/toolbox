@@ -91,6 +91,36 @@ export async function callMiniMax(messages: any[], responseFormat?: any) {
   return content;
 }
 
+/**
+ * 安全地从 AI 返回的文本中提取并解析 JSON
+ */
+function safeJsonParse(text: string) {
+  try {
+    // 1. 尝试直接解析（最理想情况）
+    return JSON.parse(text);
+  } catch (e) {
+    // 2. 尝试提取 ```json ... ``` 块中的内容
+    const jsonBlockMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonBlockMatch) {
+      try {
+        return JSON.parse(jsonBlockMatch[1].trim());
+      } catch (e2) {}
+    }
+
+    // 3. 尝试提取第一个 { 和最后一个 } 之间的内容
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      try {
+        return JSON.parse(text.substring(firstBrace, lastBrace + 1));
+      } catch (e3) {}
+    }
+
+    // 4. 如果都失败了，抛出原始错误
+    throw new Error('无法从 AI 返回的内容中提取有效的 JSON 数据');
+  }
+}
+
 export const toolPrompts = {
   'excel-helper': {
     system: `你是一个精通 Excel 和 Google Sheets 的高级数据分析专家。
@@ -224,8 +254,7 @@ export const toolServices = {
         { role: 'user', content: toolPrompts['generate-card'].user(content) },
       ], { type: "json_object" });
       
-      const jsonStr = res.replace(/```json\n?|```/g, '').trim();
-      const data = JSON.parse(jsonStr);
+      const data = safeJsonParse(res);
       if (!Array.isArray(data.points)) data.points = [String(data.points)];
       return data;
     } catch (e) {
@@ -257,12 +286,11 @@ export const toolServices = {
         { role: 'system', content: toolPrompts['generate-mindmap'].system },
         { role: 'user', content: toolPrompts['generate-mindmap'].user(content) },
       ]);
-      // 清理可能存在的 Markdown 代码块标记
-      const cleaned = res.replace(/```mermaid\n?|```/g, '').trim();
-      return cleaned.startsWith("mindmap") ? cleaned : `mindmap\n${cleaned}`;
+      // 清理可能存在的 Markdown 代码块标记，直接返回 Markdown 列表供 Markmap 渲染
+      return res.replace(/```markdown\n?|```mermaid\n?|```/g, '').trim();
     } catch (e) {
       console.error('Generate Mindmap Error:', e);
-      return "mindmap\n  root((解析失败))\n    请重试\n    检查输入内容";
+      return "# 解析失败\n- 请重试\n- 检查输入内容";
     }
   },
   'generate-resume': async (content: string) => {
@@ -271,8 +299,7 @@ export const toolServices = {
         { role: 'system', content: toolPrompts['generate-resume'].system },
         { role: 'user', content: toolPrompts['generate-resume'].user(content) },
       ], { type: "json_object" });
-      const jsonStr = res.replace(/```json\n?|```/g, '').trim();
-      return JSON.parse(jsonStr);
+      return safeJsonParse(res);
     } catch (e) {
       console.error('Generate Resume Error:', e);
       return {
@@ -304,7 +331,11 @@ export const toolServices = {
         { role: 'user', content: toolPrompts['generate-flowchart'].user(content) },
       ]);
       const cleaned = res.replace(/```mermaid\n?|```/g, '').trim();
-      return cleaned.startsWith("graph") || cleaned.startsWith("flowchart") ? cleaned : `graph TD\n${cleaned}`;
+      // 检查是否已经包含 Mermaid 关键字
+      if (cleaned.startsWith('graph') || cleaned.startsWith('flowchart') || cleaned.startsWith('sequenceDiagram') || cleaned.startsWith('gantt')) {
+        return cleaned;
+      }
+      return `graph TD\n${cleaned}`;
     } catch (e) {
       console.error('Generate Flowchart Error:', e);
       return "graph TD\n  A[解析失败] --> B[请重试]";

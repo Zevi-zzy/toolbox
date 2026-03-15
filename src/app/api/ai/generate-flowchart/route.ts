@@ -3,6 +3,8 @@ import { createRouteClient } from '@/lib/supabase-server';
 import { checkUsage, incrementUsage } from '@/lib/usage';
 import { toolServices } from '@/services/ai';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { content } = await req.json();

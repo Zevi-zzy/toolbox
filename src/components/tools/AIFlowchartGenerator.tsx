@@ -6,22 +6,6 @@ import Link from "next/link";
 import mermaid from "mermaid";
 import { toPng } from "html-to-image";
 
-// 初始化 mermaid
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'base',
-  themeVariables: {
-    primaryColor: '#3b82f6',
-    primaryTextColor: '#fff',
-    primaryBorderColor: '#2563eb',
-    lineColor: '#94a3b8',
-    secondaryColor: '#f1f5f9',
-    tertiaryColor: '#fff',
-  },
-  securityLevel: 'loose',
-  fontFamily: 'PingFang SC',
-});
-
 export default function AIFlowchartGenerator() {
   const [content, setContent] = useState("");
   const [flowchartCode, setFlowchartCode] = useState("");
@@ -29,6 +13,24 @@ export default function AIFlowchartGenerator() {
   const [error, setError] = useState("");
   const [isRendered, setIsRendered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // 初始化 mermaid
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#3b82f6',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#2563eb',
+        lineColor: '#94a3b8',
+        secondaryColor: '#f1f5f9',
+        tertiaryColor: '#fff',
+      },
+      securityLevel: 'loose',
+      fontFamily: 'PingFang SC',
+    });
+  }, []);
 
   const handleGenerate = async () => {
     if (!content.trim()) return;

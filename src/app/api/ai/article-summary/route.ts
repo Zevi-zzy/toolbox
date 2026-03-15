@@ -4,6 +4,8 @@ import { createRouteClient } from '@/lib/supabase-server';
 import { checkUsage, incrementUsage } from '@/lib/usage';
 import { toolPrompts, callMiniMaxStream } from '@/services/ai';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
