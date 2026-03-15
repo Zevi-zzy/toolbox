@@ -1,6 +1,6 @@
 export async function callMiniMaxStream(messages: any[], onChunk: (chunk: string) => void) {
   const apiKey = process.env.MINIMAX_API_KEY;
-  const url = 'https://api.minimax.io/v1/text/chatcompletion_v2';
+  const url = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
 
   const body = {
     model: 'MiniMax-M2.5',
@@ -54,7 +54,7 @@ export async function callMiniMaxStream(messages: any[], onChunk: (chunk: string
 
 export async function callMiniMax(messages: any[], responseFormat?: any) {
   const apiKey = process.env.MINIMAX_API_KEY;
-  const url = 'https://api.minimax.io/v1/text/chatcompletion_v2';
+  const url = 'https://api.minimax.chat/v1/text/chatcompletion_v2';
 
   const body: any = {
     model: 'MiniMax-M2.5',
