@@ -19,7 +19,13 @@ export default function Navbar() {
       const res = await fetch('/api/user/usage');
       if (res.ok) {
         const data = await res.json();
-        setUsage(data);
+        setUsage({
+          count: data.count ?? 0,
+          allowed: data.allowed ?? true,
+          isPro: data.isPro ?? false,
+          limit: data.limit ?? 10,
+          tier: data.tier ?? 'free'
+        });
       }
     } catch (err) {
       console.error('Failed to fetch usage');

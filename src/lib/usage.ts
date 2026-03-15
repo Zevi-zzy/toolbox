@@ -14,7 +14,7 @@ export async function checkUsage(userId: string) {
 
   if (error || !profile) {
     console.error('Error fetching usage:', error);
-    return { allowed: true, count: 0, tier: 'free' }; 
+    return { allowed: true, count: 0, limit: MAX_FREE_USAGE, tier: 'free' }; 
   }
 
   const limit = profile.is_pro || profile.tier === 'pro' ? MAX_PRO_USAGE : MAX_FREE_USAGE;
