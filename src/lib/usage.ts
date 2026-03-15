@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase-server';
 
-export const MAX_FREE_USAGE = 10;
+export const MAX_FREE_USAGE = 500;
 export const MAX_PRO_USAGE = 1000;
 
 export async function checkUsage(userId: string) {

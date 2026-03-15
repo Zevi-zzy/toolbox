@@ -49,8 +49,14 @@ export default function AIMindmapGenerator() {
       if (!response.ok) throw new Error(data.error || "生成失败");
 
       const code = data.mindmapCode;
+      // 极致清理：移除可能存在的 markdown 标记、多余空格和解释文字
+      let cleanedCode = code
+        .replace(/```mermaid\n?|```/g, "")
+        .replace(/mindmap\s+root/g, "mindmap\n  root") // 确保 root 在新行
+        .trim();
+      
       // 检查代码是否以 mindmap 开头
-      const formattedCode = code.startsWith("mindmap") ? code : `mindmap\n${code}`;
+      const formattedCode = cleanedCode.startsWith("mindmap") ? cleanedCode : `mindmap\n${cleanedCode}`;
       setMindmapCode(formattedCode);
     } catch (err: any) {
       setError(err.message);
@@ -63,14 +69,23 @@ export default function AIMindmapGenerator() {
     const renderMermaid = async () => {
       if (mindmapCode && containerRef.current) {
         try {
-          // 清除之前的渲染结果
-          containerRef.current.innerHTML = `<div id="mermaid-temp" class="mermaid">${mindmapCode}</div>`;
-          const { svg } = await mermaid.render('mermaid-svg', mindmapCode);
+          // 彻底清除容器内容
+          containerRef.current.innerHTML = '';
+          const { svg } = await mermaid.render('mermaid-svg-' + Date.now(), mindmapCode);
           containerRef.current.innerHTML = svg;
           setIsRendered(true);
+          setError(""); // 成功渲染后清除错误
         } catch (err) {
           console.error("Mermaid 渲染错误:", err);
-          setError("图形渲染失败，请尝试重新生成。");
+          setError("导图语法解析失败，正在尝试自动修复并重新渲染...");
+          
+          // 尝试简单修复：如果是因为没有换行导致的
+          if (!mindmapCode.includes('\n')) {
+             const fixedCode = mindmapCode.replace(/\s+/g, '\n  ');
+             setMindmapCode(fixedCode);
+          } else {
+             setError("图形渲染失败，请尝试增加描述内容或重新生成。");
+          }
         }
       }
     };

@@ -75,7 +75,7 @@ export default function AIArticleSummary() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-gray-900">AI 网页总结</h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-600 text-white uppercase tracking-wider">高级</span>
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-600 text-white uppercase tracking-wider">进阶</span>
           </div>
           <p className="text-gray-500 text-sm">输入文章链接，AI 帮你快速提炼核心内容与结论。</p>
         </div>

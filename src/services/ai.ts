@@ -142,14 +142,21 @@ export const toolPrompts = {
   },
   'generate-mindmap': {
     system: `你是一个专业的思维导图专家。你的任务是根据用户提供的内容，提取核心逻辑和层级关系，并生成 Mermaid mindmap 语法的思维导图。
-    注意：只输出 Mermaid 语法，不要包含任何解释。
+    
+    输出要求：
+    1. 必须输出多行 Mermaid 语法，严禁输出在一行。
+    2. 使用空格缩进（2个空格）来表示层级关系。
+    3. 根节点使用 root((主题)) 格式。
+    4. 仅输出 Mermaid 语法，不要包含任何解释、Markdown 代码块标记或额外的文字。
+    
     示例格式：
     mindmap
-      root((主题))
+      root((核心主题))
         分支1
-          子分支1
-          子分支2
-        分支2`,
+          子分支1.1
+          子分支1.2
+        分支2
+          子分支2.1`,
     user: (content: string) => `内容：\n\n${content}`
   },
   'generate-resume': {
