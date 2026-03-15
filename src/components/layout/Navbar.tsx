@@ -10,7 +10,7 @@ export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [usage, setUsage] = useState<{ count: number; allowed: boolean; isPro?: boolean } | null>(null);
+  const [usage, setUsage] = useState<{ count: number; allowed: boolean; isPro?: boolean; limit?: number; tier?: string } | null>(null);
   const supabase = createClient();
 
   const fetchUsage = async () => {
@@ -71,21 +71,12 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 {/* 简易用量显示 */}
                 {usage && (
-                  usage.isPro ? (
-                    <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-amber-50 rounded-full border border-amber-100">
-                      <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
-                      <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
-                        Pro 会员
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
-                      <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
-                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                        可用额度: {10 - usage.count} / 10
-                      </span>
-                    </div>
-                  )
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
+                    <Zap className={`w-3 h-3 ${usage.isPro ? 'text-amber-500 fill-amber-500' : 'text-blue-500'}`} />
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      {usage.tier === 'pro' ? 'Pro' : 'Free'}: {usage.limit! - usage.count} / {usage.limit}
+                    </span>
+                  </div>
                 )}
 
                 <button 
@@ -109,6 +100,14 @@ export default function Navbar() {
                         </div>
 
                         <div className="px-2 mb-2">
+                          <Link 
+                            href="/pricing"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors font-bold"
+                          >
+                            <Zap className="w-4 h-4 text-amber-500" />
+                            付费升级 Pro
+                          </Link>
                           <Link 
                             href="/dashboard/developer"
                             onClick={() => setIsUserMenuOpen(false)}

@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     if (eventName === "order_created" || eventName === "subscription_created") {
       await supabase
         .from("profiles")
-        .update({ tier: "pro", is_pro: true })
+        .update({ tier: "pro", is_pro: true, usage_count: 0 }) // 重置或给予新额度
         .eq("id", userId);
     } else if (eventName === "subscription_cancelled" || eventName === "subscription_expired") {
       await supabase

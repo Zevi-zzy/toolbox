@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, Zap, Shield, Rocket } from "lucide-react";
+import { Check, Loader2, Zap, Shield, Rocket, MessageSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
 export default function PricingPage() {
@@ -109,6 +109,30 @@ export default function PricingPage() {
             </button>
           </div>
         ))}
+      </div>
+
+      {/* Contact Support Section */}
+      <div className="mt-24 max-w-2xl mx-auto bg-white border border-blue-100 rounded-[3rem] p-10 text-center shadow-xl shadow-blue-500/5">
+        <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+          <MessageSquare className="w-8 h-8 text-blue-600" />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">定制化/大客户需求？</h3>
+        <p className="text-gray-500 mb-8 text-sm">
+          如果您需要更高级别的 API 调用额度、私有化部署或有任何使用疑问，欢迎添加客服微信咨询。
+        </p>
+        <div className="inline-flex flex-col items-center gap-4 px-8 py-6 bg-gray-50 rounded-[2rem] border border-gray-100">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-widest">客服微信</p>
+          <p className="text-2xl font-black text-blue-600 font-mono">zzy714537955</p>
+          <button 
+            onClick={() => {
+              navigator.clipboard.writeText("zzy714537955");
+              alert("微信号已复制");
+            }}
+            className="text-xs font-bold text-blue-600 hover:underline"
+          >
+            点击复制微信号
+          </button>
+        </div>
       </div>
 
       {/* Trust Badges */}

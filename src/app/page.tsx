@@ -5,6 +5,7 @@ import { Search, Mail, FileSpreadsheet, Wand2, FileText, Layout, MessageSquare, 
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import SkillsModal from "@/components/tools/SkillsModal";
+import DeveloperPage from "./dashboard/developer/page";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("全部");
@@ -251,6 +252,11 @@ export default function Home() {
           <p className="text-gray-400">没有找到匹配的工具，换个词试试？</p>
         </div>
       )}
+
+      {/* 开发者平台直接展示在首页 */}
+      <div className="mt-24 pt-24 border-t border-gray-100">
+        <DeveloperPage isHome={true} />
+      </div>
 
       <SkillsModal 
         isOpen={isSkillsModalOpen} 

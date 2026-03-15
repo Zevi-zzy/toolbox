@@ -27,7 +27,6 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
 
         <Auth
           supabaseClient={supabase}
-          redirectTo={`${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`}
           appearance={{
             theme: ThemeSupa,
             variables: {
@@ -60,10 +59,19 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
                 button_label: '注册',
                 social_provider_text: '使用 {{provider}} 注册',
                 link_text: '没有账号？注册一个',
+                confirmation_text: '点击注册即表示您同意我们的《用户协议》与《隐私政策》',
               },
             },
           } as any}
         />
+        <div className="mt-6 text-center">
+          <p className="text-[10px] text-gray-400 leading-relaxed px-4">
+            注册即代表您已阅读并同意我们的
+            <Link href="/privacy" className="text-blue-600 hover:underline mx-1">隐私政策</Link>
+            与
+            <Link href="/terms" className="text-blue-600 hover:underline mx-1">服务条款</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
