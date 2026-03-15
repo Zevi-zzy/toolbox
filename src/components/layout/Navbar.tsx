@@ -40,6 +40,12 @@ export default function Navbar() {
     };
     getUser();
 
+    // 监听用量更新事件
+    const handleUsageUpdate = () => {
+      if (user) fetchUsage();
+    };
+    window.addEventListener('usage-updated', handleUsageUpdate);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -50,8 +56,11 @@ export default function Navbar() {
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('usage-updated', handleUsageUpdate);
+    };
+  }, [supabase, user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -121,49 +130,15 @@ export default function Navbar() {
                             <Zap className="w-4 h-4 text-amber-500" />
                             付费升级 Pro
                           </Link>
-                          <Link 
-                            href="/dashboard/developer"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
-                          >
-                            <Terminal className="w-4 h-4 text-blue-600" />
-                            开发者中心 (API)
-                          </Link>
                         </div>
                         
-                        {usage && (
-                      <div className="px-4 py-3 border-b border-gray-50 mb-2">
-                        <div className="flex justify-between items-center mb-2">
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                            {usage.isPro ? "Pro 会员权益" : "免费额度使用情况"}
-                          </p>
-                          <span className="text-[10px] font-bold text-blue-600">
-                            {usage.isPro ? "无限额度" : `${usage.count}/10`}
-                          </span>
-                        </div>
-                        {!usage.isPro && (
-                          <>
-                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full transition-all duration-500 ${usage.count >= 10 ? 'bg-red-500' : 'bg-blue-600'}`}
-                                style={{ width: `${Math.min((usage.count / 10) * 100, 100)}%` }}
-                              ></div>
-                            </div>
-                            {usage.count >= 10 && (
-                              <p className="text-[10px] text-red-500 mt-2 font-medium">额度已用完，请升级解锁</p>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    )}
-
-                    <button 
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      退出登录
-                    </button>
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          退出登录
+                        </button>
                   </div>
                 )}
               </div>

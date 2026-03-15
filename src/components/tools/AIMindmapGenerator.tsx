@@ -40,6 +40,9 @@ export default function AIMindmapGenerator() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "生成失败");
 
+      // 触发用量更新事件
+      window.dispatchEvent(new CustomEvent('usage-updated'));
+
       const code = data.mindmapCode;
       // 清理可能存在的代码块标记
       const cleanedMarkdown = code.replace(/```markdown\n?|```/g, "").trim();

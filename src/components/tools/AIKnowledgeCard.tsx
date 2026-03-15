@@ -44,6 +44,9 @@ export default function AIKnowledgeCard() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "生成失败");
 
+      // 触发用量更新事件
+      window.dispatchEvent(new CustomEvent('usage-updated'));
+
       setCardData(data.cardData);
     } catch (err: any) {
       setError(err.message);

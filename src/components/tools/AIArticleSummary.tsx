@@ -32,6 +32,9 @@ export default function AIArticleSummary() {
         throw new Error(data.error || "总结失败");
       }
 
+      // 触发用量更新事件
+      window.dispatchEvent(new CustomEvent('usage-updated'));
+
       const reader = response.body?.getReader();
       if (!reader) throw new Error("浏览器不支持流式传输");
 

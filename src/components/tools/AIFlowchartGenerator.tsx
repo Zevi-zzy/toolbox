@@ -50,6 +50,9 @@ export default function AIFlowchartGenerator() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "生成失败");
 
+      // 触发用量更新事件
+      window.dispatchEvent(new CustomEvent('usage-updated'));
+
       setFlowchartCode(data.flowchartCode);
     } catch (err: any) {
       setError(err.message);

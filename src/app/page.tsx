@@ -135,6 +135,17 @@ export default function Home() {
       href: "/tools/ai-excel",
     },
     {
+      id: "ai-meeting",
+      name: "AI 会议纪要",
+      description: "将杂乱的会议记录或录音稿，整理成标准、可执行的会议纪要。",
+      icon: MessageSquare,
+      category: "办公必备",
+      level: "进阶",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      href: "/tools/ai-meeting",
+    },
+    {
       id: "ai-ppt",
       name: "AI PPT 大纲",
       description: "输入一个主题，快速生成逻辑严密的 PPT 内容大纲。",

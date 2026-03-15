@@ -7,23 +7,27 @@ export default function HelpPage() {
   const faqs = [
     {
       question: "Toolbox 是什么？",
-      answer: "Toolbox 是一个专为办公小白设计的 AI 工具集，提供网页总结、思维导图、简历优化、Excel 助手等多种实用工具。我们致力于通过极简的交互方式，让每个人都能轻松享受 AI 带来的效率提升。"
+      answer: "Toolbox 是一个专为办公小白设计的极简 AI 工具箱。它集成了网页总结、思维导图、流程图绘制、简历优化、Excel 助手等 9 大核心工具，旨在通过“一键式”体验解决最琐碎的办公痛点。"
     },
     {
-      question: "如何使用 AI 网页总结工具？",
-      answer: "只需复制网页链接（如微信公众号文章、新闻报道等），粘贴到 Toolbox 的总结工具框中，AI 就会在几秒钟内为您提炼出核心观点和结论。"
+      question: "AI 网页总结支持哪些平台？",
+      answer: "我们的网页总结工具针对微信公众号文章、Mintlify/VitePress 等主流技术文档、以及各类新闻门户进行了深度优化。只需输入 URL，AI 即可精准抓取正文并提炼 3-5 个核心观点。"
     },
     {
-      question: "免费版和 Pro 版有什么区别？",
-      answer: "免费版用户享有基础使用额度（通常为 10 次/月）。升级 Pro 版后，您可以解锁更高的调用限额（1000 次/月）、更快的响应速度、批量处理能力以及开发者 API 调用权限。"
+      question: "生成的思维导图和流程图可以下载吗？",
+      answer: "可以。Toolbox 使用标准的 Mermaid 和 Markmap 技术渲染图形，您可以实时预览生成效果，并一键导出为高清 PNG 图片，方便插入 PPT 或分享到社交媒体。"
+    },
+    {
+      question: "工具输出的格式是怎样的？",
+      answer: "所有工具均支持标准的 Markdown 渲染。Excel 助手会以代码块形式给出公式，会议纪要和工作汇报会进行精美的排版（加粗、列表、标题等），确保结果“拿来即用”。"
+    },
+    {
+      question: "免费版额度用完了怎么办？",
+      answer: "免费用户享有 10 次初始额度。您可以随时通过“价格”页面升级为 Pro 会员，解锁 1000 次/月的超高限额、开发者 API 调用权限以及更多高级功能。您的用量在每次使用后都会在导航栏实时更新。"
     },
     {
       question: "什么是 API & Skills 集成？",
-      answer: "这是为进阶用户和开发者设计的功能。通过 API 密钥，您可以将 Toolbox 的能力集成到您自己的应用中。同时，我们提供 OpenAPI Manifest 地址，让您可以一键将工具导入 GPTs 或 Claude Actions。"
-    },
-    {
-      question: "支付遇到问题怎么办？",
-      answer: "我们的支付由 Lemon Squeezy 提供安全保障。如果您在订阅过程中遇到任何问题，请发送邮件至 zevizhang@gmail.com，我们将第一时间为您解决。"
+      answer: "通过开发者中心（Dashboard），Pro 用户可以生成 API 密钥，将 Toolbox 的 AI 能力集成到自己的 Agent 或 GPTs 中。我们还提供了符合 OpenAPI 规范的 Manifest 链接，支持一键安装技能。"
     }
   ];
 
