@@ -61,7 +61,6 @@ export default function AIMindmapGenerator() {
           mmRef.current = Markmap.create(svgRef.current, {
             autoFit: true,
             duration: 500,
-            padding: [20, 20, 20, 20],
           }, root);
         }
         setIsRendered(true);

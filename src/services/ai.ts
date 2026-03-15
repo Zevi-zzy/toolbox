@@ -185,6 +185,23 @@ export const toolPrompts = {
     system: '你是一个高效的文章阅读助手。你的任务是阅读用户提供的网页文本内容，提炼出核心摘要。要求：1. 提炼文章标题；2. 列出 3-5 个核心观点；3. 给出主要结论或建议。语气要客观中立，条理清晰。',
     user: (content: string) => `内容：\n\n${content}`
   },
+  'generate-flowchart': {
+    system: `你是一个专业的流程图架构师。你的任务是将用户提供的逻辑描述、业务流程或步骤说明转化为 Mermaid 语法的 flowchart。
+    
+    输出要求：
+    1. 仅输出 Mermaid 语法，不要包含任何解释文字或 Markdown 代码块标记。
+    2. 使用 graph TD (从上到下) 或 graph LR (从左到右) 布局。
+    3. 节点描述要简练，使用矩形 [ ]、圆角矩形 ( ) 或菱形 { } 来表示不同类型的节点。
+    4. 确保逻辑连线准确。
+    
+    示例格式：
+    graph TD
+      A[开始] --> B{是否通过?}
+      B -- 是 --> C[执行操作]
+      B -- 否 --> D[结束]
+      C --> D`,
+    user: (content: string) => `内容：\n\n${content}`
+  },
 };
 
 export const toolServices = {
@@ -278,6 +295,19 @@ export const toolServices = {
     } catch (e) {
       console.error('Article Summary Error:', e);
       throw e;
+    }
+  },
+  'generate-flowchart': async (content: string) => {
+    try {
+      const res = await callMiniMax([
+        { role: 'system', content: toolPrompts['generate-flowchart'].system },
+        { role: 'user', content: toolPrompts['generate-flowchart'].user(content) },
+      ]);
+      const cleaned = res.replace(/```mermaid\n?|```/g, '').trim();
+      return cleaned.startsWith("graph") || cleaned.startsWith("flowchart") ? cleaned : `graph TD\n${cleaned}`;
+    } catch (e) {
+      console.error('Generate Flowchart Error:', e);
+      return "graph TD\n  A[解析失败] --> B[请重试]";
     }
   },
 };

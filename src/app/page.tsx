@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from "react";
-import { Search, Mail, FileSpreadsheet, Wand2, FileText, Layout, MessageSquare, Sparkles, UserCircle, Network, Box } from "lucide-react";
+import { Search, Mail, FileSpreadsheet, Wand2, FileText, Layout, MessageSquare, Sparkles, UserCircle, Network, Box, GitBranch } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import SkillsModal from "@/components/tools/SkillsModal";
@@ -66,6 +66,17 @@ export default function Home() {
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       href: "/tools/ai-mindmap",
+    },
+    {
+      id: "ai-flowchart",
+      name: "AI 流程图",
+      description: "输入逻辑描述或业务步骤，AI 自动绘制精美的业务流程图。",
+      icon: GitBranch,
+      category: "效率工具",
+      level: "进阶",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      href: "/tools/ai-flowchart",
     },
     {
       id: "ai-resume",

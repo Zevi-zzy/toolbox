@@ -7,6 +7,9 @@ Toolbox 采用现代全栈架构，旨在提供极致的 AI 交互体验。
 - **前端框架**: Next.js 14 (App Router) - 利用 React Server Components 和客户端组件的混合模式。
 - **UI/样式**: Tailwind CSS + Lucide React (图标) - 响应式、极简主义设计。
 - **AI 引擎**: MiniMax M2.5 - 通过统一的 AI 服务层进行调用。
+- **渲染引擎**: 
+  - **Markmap**: 用于渲染 XMind 风格的思维导图。
+  - **Mermaid.js**: 用于渲染标准的业务流程图。
 - **交互模式**: 
   - **流式传输 (Streaming)**: 基于 SSE (Server-Sent Events) 实现，提升长文本生成的即时感。
   - **结构化输出**: 利用模型的 `json_object` 模式确保复杂数据的解析准确性。
@@ -71,9 +74,17 @@ Toolbox 采用现代全栈架构，旨在提供极致的 AI 交互体验。
 ### 2.8 AI 思维导图 (AI Mindmap Generator)
 - **功能**: 文本转交互式脑图。
 - **技术方案**:
-  - **中间格式**: AI 负责生成 `Mermaid mindmap` 语法。
+  - **中间格式**: AI 负责生成标准 Markdown 层级列表。
+  - **图形渲染**: 前端使用 `markmap` 库动态渲染 XMind 风格的交互式 SVG。
+  - **交互**: 支持缩放、拖拽和节点折叠。
+
+### 2.9 AI 流程图 (AI Flowchart Generator)
+- **功能**: 逻辑描述转标准业务流程图。
+- **技术实现**:
+  - **中间格式**: AI 负责生成 Mermaid flowchart 语法。
   - **图形渲染**: 前端使用 `mermaid.js` 库动态渲染 SVG。
-  - **样式定制**: 统一了思维导图的配色方案，使其符合平台极简视觉风格。
+  - **视觉定制**: 采用了平台统一的蓝色调配色，支持矩形、菱形等多种流程节点。
+  - **导出**: 支持一键导出为 PNG 图片。
 
 ---
 
