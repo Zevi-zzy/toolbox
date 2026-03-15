@@ -1,5 +1,5 @@
 import { createServerClient } from './supabase-server';
-import { crypto } from 'crypto';
+import crypto from 'crypto';
 
 export async function generateApiKey(userId: string, name: string = 'Default Key') {
   const supabase = createServerClient();
