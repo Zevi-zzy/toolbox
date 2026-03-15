@@ -60,6 +60,7 @@ export default function Navbar() {
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-sm font-medium hover:text-blue-600">首页</Link>
+            <Link href="/changelog" className="text-sm font-medium hover:text-blue-600">更新日志</Link>
             <a href="mailto:zevizhang@gmail.com" className="text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 transition-all">
               商务合作：zevizhang@gmail.com
             </a>
