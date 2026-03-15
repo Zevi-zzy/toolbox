@@ -1,12 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Mail, FileSpreadsheet, Wand2, FileText, Layout, MessageSquare, Sparkles, UserCircle, Network } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Mail, FileSpreadsheet, Wand2, FileText, Layout, MessageSquare, Sparkles, UserCircle, Network, Box } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase";
+import SkillsModal from "@/components/tools/SkillsModal";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("全部");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isPro, setIsPro] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<any>(null);
+  const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkProStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const res = await fetch('/api/user/usage');
+        if (res.ok) {
+          const data = await res.json();
+          setIsPro(data.isPro);
+        }
+      }
+    };
+    checkProStatus();
+  }, [supabase]);
 
   const tools = [
     {
@@ -189,14 +209,29 @@ export default function Home() {
                 {tool.description}
               </p>
               {!tool.isComingSoon ? (
-                <div className="flex items-center text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">
-                  立即体验
-                  <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center text-sm font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">
+                    立即体验
+                    <svg className="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedTool(tool);
+                      setIsSkillsModalOpen(true);
+                    }}
+                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider"
+                    title="获取 Skills 安装指令"
+                  >
+                    <Box className="w-3.5 h-3.5" />
+                    获取 Skills
+                  </button>
                 </div>
               ) : (
-                <div className="text-sm font-bold text-gray-400">敬请期待</div>
+                <div className="text-sm font-bold text-gray-400 mt-auto">敬请期待</div>
               )}
             </div>
           );
@@ -216,6 +251,13 @@ export default function Home() {
           <p className="text-gray-400">没有找到匹配的工具，换个词试试？</p>
         </div>
       )}
+
+      <SkillsModal 
+        isOpen={isSkillsModalOpen} 
+        onClose={() => setIsSkillsModalOpen(false)} 
+        tool={selectedTool} 
+        isPro={isPro}
+      />
     </div>
   );
 }

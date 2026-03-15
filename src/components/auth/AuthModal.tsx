@@ -44,7 +44,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
               }
             }
           }}
-          providers={['wechat']}
+          providers={['wechat'] as any}
           localization={{
             variables: {
               sign_in: {
@@ -62,12 +62,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
                 link_text: '没有账号？注册一个',
               },
             },
-            labels: {
-              fonts: {
-                wechat: '微信',
-              }
-            }
-          }}
+          } as any}
         />
       </div>
     </div>
