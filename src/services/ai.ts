@@ -106,13 +106,20 @@ export const toolPrompts = {
   },
   'generate-card': {
     system: `你是一个专业的知识卡片设计师。你的任务是将用户提供的内容提炼成一张精美的知识卡片。
+    输出要求：
+    1. 标题 (title)：必须根据正文自动提炼一个富有吸引力、社交感的短标题。严禁使用“卡片标题”、“知识卡片”、“未命名”等占位符。
+    2. 分类 (category)：提炼一个准确的领域标签（如：职场成长、思维模型、效率工具等）。
+    3. 核心要点 (points)：提炼 3-5 个对用户最有启发性的核心观点，每个要点应简短有力，具有行动导向。
+    4. 金句 (quote)：提炼或总结一句具有共鸣感、启发性的金句。
+    5. 颜色主题 (color_theme)：根据内容情感选择 (blue, indigo, emerald, rose, amber)。
+    
     请按以下 JSON 格式输出（不要包含任何 Markdown 标记）：
     {
-      "title": "卡片标题",
-      "category": "类别",
-      "points": ["核心要点1", "核心要点2", "核心要点3", "核心要点4", "核心要点5"],
-      "quote": "一句具有启发性的话",
-      "color_theme": "blue | indigo | emerald | rose | amber"
+      "title": "提炼的标题",
+      "category": "领域标签",
+      "points": ["要点1", "要点2", "要点3"],
+      "quote": "金句内容",
+      "color_theme": "blue"
     }`,
     user: (content: string) => `请为以下内容生成知识卡片：\n\n${content.slice(0, 10000)}`
   },
@@ -144,20 +151,25 @@ export const toolPrompts = {
     user: (content: string) => `内容：\n\n${content}`
   },
   'generate-resume': {
-    system: `你是一个专业的 HR 专家和简历优化师。你的任务是将用户提供的杂乱简历内容提炼成结构化数据。
+    system: `你是一个顶尖的 HR 专家和简历优化师。你的任务是将用户提供的杂乱、口语化的个人经历内容提炼并转化为专业、结果导向的结构化简历数据。
+    优化要求：
+    1. 术语专业化：将“写代码”优化为“主导核心架构开发”、“参与性能调优”；将“卖东西”优化为“负责渠道拓展与销售转化”。
+    2. 结果导向：尽可能在描述中体现数据或成果（如：提升了 20% 效率、节省了 10% 成本）。
+    3. 个人总结：写一段富有竞争力的专业总结，突出用户的核心竞争力。
+    
     请按以下 JSON 格式输出（不要包含任何 Markdown 标记）：
     {
       "name": "姓名",
-      "title": "职业头衔",
-      "summary": "专业总结",
+      "title": "专业职业头衔",
+      "summary": "专业总结（3-5句话）",
       "experience": [
-        { "company": "公司", "role": "职位", "period": "周期", "desc": "工作描述" }
+        { "company": "公司名", "role": "专业职位", "period": "时间周期", "desc": ["专业化描述1", "专业化描述2"] }
       ],
       "education": [
-        { "school": "学校", "degree": "学位", "period": "周期" }
+        { "school": "学校名称", "degree": "学位", "period": "时间周期" }
       ],
-      "skills": ["技能1", "技能2"],
-      "color_theme": "blue | indigo | emerald | rose | amber"
+      "skills": ["专业技能1", "专业技能2"],
+      "color_theme": "blue | slate | emerald | violet"
     }`,
     user: (content: string) => `内容：\n\n${content}`
   },
@@ -194,10 +206,10 @@ export const toolServices = {
     } catch (e) {
       console.error('Generate Card Error:', e);
       return {
-        title: "知识卡片",
-        category: "通用",
-        points: ["内容提炼出错，请重试", "这可能是由于输入内容过短或格式特殊", "您可以尝试增加内容长度或更换内容"],
-        quote: "保持好奇，持续学习",
+        title: "内容提炼提示",
+        category: "系统提示",
+        points: ["输入内容可能过短或格式过于特殊", "AI 暂时无法从当前文本中提取结构化要点", "建议尝试增加内容长度或更换一段更完整的文字", "确保输入内容不包含过多的乱码或干扰信息"],
+        quote: "换个姿势，再试一次",
         color_theme: "blue"
       };
     }

@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
     const $ = cheerio.load(html);
 
     // 3. 提取正文内容
-    // 针对 Mintlify 等文档系统，尝试先移除侧边栏、导航等
-    $('#sidebar, #navigation-items, #table-of-contents, nav, footer, header, aside, .sidebar, .nav, .footer, .header').remove();
-    $('script, style, noscript, iframe, .ads, .comments, .qr_code_pc_outer').remove();
+    // 针对 Mintlify, VitePress, Docusaurus 等文档系统，尝试先移除侧边栏、导航等
+    $('#sidebar, #navigation-items, #table-of-contents, nav, footer, header, aside, .sidebar, .nav, .footer, .header, .table-of-contents').remove();
+    $('script, style, noscript, iframe, .ads, .comments, .qr_code_pc_outer, .hidden').remove();
     
     let bodyText = '';
     const selectors = [
@@ -64,35 +64,49 @@ export async function POST(req: NextRequest) {
       'article', 
       'main', 
       '.prose',              // Tailwind Prose
+      '.markdown-body',      // GitHub/Docs
+      '.vp-doc',             // VitePress
+      '.nextra-content',     // Nextra
       '.content', 
       '.post-content', 
       '.article-content',
       '#content',
       '.entry-content',
-      '#main-content',
-      '.markdown-body',      // GitHub/Docs
-      '.vp-doc',             // VitePress
-      '.nextra-content'      // Nextra
+      '#main-content'
     ];
     
     for (const selector of selectors) {
-      const text = $(selector).text().trim();
-      if (text.length > 200) {
-        bodyText = text;
-        break;
+      const $el = $(selector);
+      if ($el.length > 0) {
+        // 进一步清洗容器内的干扰
+        $el.find('nav, footer, .sidebar, .ad-unit').remove();
+        const text = $el.text().trim();
+        if (text.length > 200) {
+          bodyText = text;
+          break;
+        }
       }
     }
 
-    if (!bodyText || bodyText.length < 200) {
-      // 如果没找到明确的正文区域，或者太短，尝试更激进的提取
-      // 提取所有段落和标题
-      const parts: string[] = [];
+    // 如果常规提取失败，采用基于“文本密度”的智能提取逻辑
+    if (!bodyText || bodyText.length < 300) {
+      const segments: string[] = [];
+      
+      // 提取所有有意义的标题和段落
       $('h1, h2, h3, p, li').each((_, el) => {
-        const t = $(el).text().trim();
-        if (t.length > 10) parts.push(t);
+        const $el = $(el);
+        // 排除掉嵌套在 nav/footer 等区域内的元素
+        if ($el.closest('nav, footer, header, aside, .sidebar').length > 0) return;
+        
+        const t = $el.text().trim();
+        // 只有长度超过 15 的片段才认为是有意义的内容
+        if (t.length > 15) {
+          segments.push(t);
+        }
       });
-      if (parts.length > 0) {
-        bodyText = parts.join('\n');
+
+      if (segments.length > 0) {
+        bodyText = segments.join('\n\n');
       }
     }
 
@@ -100,13 +114,17 @@ export async function POST(req: NextRequest) {
       bodyText = $('body').text().trim();
     }
 
-    // 限制长度并清理多余空白
-    bodyText = bodyText.replace(/\s+/g, ' ').trim().substring(0, 12000);
+    // 极致清洗：去除多余空白，限制长度
+    bodyText = bodyText
+      .replace(/\n\s*\n/g, '\n\n') // 压缩多余换行
+      .replace(/\s+/g, ' ')        // 压缩多余空格
+      .trim()
+      .substring(0, 15000); // 增加上限到 15000 字符
 
-    console.log(`Extracted content length for ${url}: ${bodyText.length}`);
+    console.log(`Smart Extraction for ${url} completed. Length: ${bodyText.length}`);
 
     if (bodyText.length < 50) {
-      return new Response(JSON.stringify({ error: '网页正文内容过短或无法自动提取（该网页可能主要由 JavaScript 渲染）。请尝试手动粘贴内容进行总结。' }), { status: 400 });
+      return new Response(JSON.stringify({ error: '无法提取网页正文。该页面可能由 JavaScript 高度渲染或受反爬限制。请手动粘贴内容总结。' }), { status: 400 });
     }
 
     // 4. 增加使用次数

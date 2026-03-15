@@ -149,7 +149,7 @@ export default function AIKnowledgeCard() {
               </div>
 
               {/* 标题 */}
-              <h2 className={`text-3xl font-black mb-10 ${currentTheme.text} leading-tight`}>
+              <h2 className={`${cardData.title.length > 20 ? 'text-2xl' : 'text-3xl'} font-black mb-10 ${currentTheme.text} leading-tight line-clamp-3`}>
                 {cardData.title}
               </h2>
 
@@ -176,9 +176,10 @@ export default function AIKnowledgeCard() {
               </div>
 
               {/* 底部 Logo */}
-              <div className="mt-8 text-center">
+              <div className="mt-8 pt-4 flex items-center justify-center border-t border-gray-200/30">
+                <div className={`w-2 h-2 rounded-full ${currentTheme.accent} mr-2 opacity-50`}></div>
                 <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">
-                  Powered by Toolbox.ApexCosmos.com
+                  TOOLBOX.APEXCOSMOS.COM
                 </p>
               </div>
             </div>
