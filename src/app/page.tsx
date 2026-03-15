@@ -11,6 +11,7 @@ import Logo from "@/components/layout/Logo";
 import { DeveloperContent } from "@/components/developer/DeveloperContent";
 
 export default function Home() {
+  const [activeLevel, setActiveLevel] = useState("全部");
   const [activeCategory, setActiveCategory] = useState("全部");
   const [searchQuery, setSearchQuery] = useState("");
   const [isPro, setIsPro] = useState(false);
@@ -147,11 +148,15 @@ export default function Home() {
   ];
 
   const filteredTools = tools.filter(tool => {
-    const matchesCategory = activeCategory === "全部" || tool.level === activeCategory;
+    const matchesLevel = activeLevel === "全部" || tool.level === activeLevel;
+    const matchesCategory = activeCategory === "全部" || tool.category === activeCategory;
     const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           tool.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    return matchesLevel && matchesCategory && matchesSearch;
   });
+
+  const categories = ["全部", "常用推荐", "效率工具", "办公必备", "多媒体"];
+  const levels = ["全部", "轻量", "进阶", "高级"];
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -178,20 +183,40 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 mb-20">
-          {["全部", "轻量", "进阶", "高级"].map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-8 py-3 rounded-full text-base font-bold transition-all ${
-                activeCategory === category 
-                  ? "bg-blue-600 text-white shadow-xl shadow-blue-500/25 scale-105" 
-                  : "bg-white text-gray-500 border-2 border-gray-50 hover:border-blue-200 hover:text-blue-600 shadow-sm"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+        <div className="flex flex-col gap-6 items-center mb-20">
+          <div className="flex flex-wrap justify-center items-center gap-4">
+            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mr-2">功能分类</span>
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+                  activeCategory === category 
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25" 
+                    : "bg-white text-gray-500 border-2 border-gray-50 hover:border-blue-200 hover:text-blue-600 shadow-sm"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap justify-center items-center gap-4">
+            <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mr-2">使用难度</span>
+            {levels.map((level) => (
+              <button
+                key={level}
+                onClick={() => setActiveLevel(level)}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+                  activeLevel === level 
+                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25" 
+                    : "bg-white text-gray-500 border-2 border-gray-50 hover:border-indigo-200 hover:text-indigo-600 shadow-sm"
+                }`}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
