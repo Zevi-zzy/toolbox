@@ -27,6 +27,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
 
         <Auth
           supabaseClient={supabase}
+          redirectTo={`${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`}
           appearance={{
             theme: ThemeSupa,
             variables: {
@@ -43,7 +44,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
               }
             }
           }}
-          providers={[]}
+          providers={['wechat']}
           localization={{
             variables: {
               sign_in: {
@@ -60,6 +61,11 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
                 social_provider_text: '使用 {{provider}} 注册',
                 link_text: '没有账号？注册一个',
               },
+            },
+            labels: {
+              fonts: {
+                wechat: '微信',
+              }
             }
           }}
         />
