@@ -51,7 +51,7 @@ export default function HelpPage() {
             </div>
             <input
               type="text"
-              placeholder="搜索您遇到的问题..."
+              placeholder="搜索关于 Pro 权益、API 密钥、支付等任何疑问..."
               className="block w-full pl-14 pr-6 py-5 border-none rounded-[2rem] bg-white/10 backdrop-blur-md text-white placeholder:text-blue-200 focus:ring-4 focus:ring-white/20 transition-all outline-none text-lg"
             />
           </div>

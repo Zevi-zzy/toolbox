@@ -160,7 +160,7 @@ export default function Home() {
           </div>
           <input
             type="text"
-            placeholder="搜索你想解决的问题，例如：写邮件, Excel 公式, 总结网页..."
+            placeholder="告诉我你的办公烦恼，例如：把这篇长文变卡片、写个复杂的 Excel 公式、优化这段简历..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="block w-full pl-14 pr-6 py-5 border-2 border-gray-100 rounded-[2rem] bg-white shadow-xl shadow-blue-500/5 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-lg"
