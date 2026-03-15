@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import AuthModal from "@/components/auth/AuthModal";
-import { LogOut, ChevronDown, Zap } from "lucide-react";
+import { LogOut, ChevronDown, Zap, Terminal } from "lucide-react";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -91,13 +91,24 @@ export default function Navbar() {
                 </button>
                 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 top-12 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl py-2 z-[60]">
-                    <div className="px-4 py-3 border-b border-gray-50 mb-2">
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">个人账户</p>
-                      <p className="text-xs text-gray-600 truncate font-medium">{user.email}</p>
-                    </div>
-                    
-                    {usage && (
+                      <div className="absolute right-0 top-12 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl py-2 z-[60]">
+                        <div className="px-4 py-3 border-b border-gray-50 mb-2">
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">个人账户</p>
+                          <p className="text-xs text-gray-600 truncate font-medium">{user.email}</p>
+                        </div>
+
+                        <div className="px-2 mb-2">
+                          <Link 
+                            href="/dashboard/developer"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
+                          >
+                            <Terminal className="w-4 h-4 text-blue-600" />
+                            开发者中心 (API)
+                          </Link>
+                        </div>
+                        
+                        {usage && (
                       <div className="px-4 py-3 border-b border-gray-50 mb-2">
                         <div className="flex justify-between items-center mb-2">
                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">免费额度使用情况</p>
