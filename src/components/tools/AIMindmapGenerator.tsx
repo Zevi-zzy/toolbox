@@ -1,33 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Network, Download, Loader2, ArrowLeft, RefreshCcw, Layout } from "lucide-react";
+import { Network, Download, Loader2, ArrowLeft, RefreshCcw, Layout, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 import Link from "next/link";
-import mermaid from "mermaid";
+import { Transformer } from "markmap-lib";
+import { Markmap } from "markmap-view";
 import { toPng } from "html-to-image";
 
-// 初始化 mermaid
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'base',
-  themeVariables: {
-    primaryColor: '#3498db',
-    primaryTextColor: '#fff',
-    primaryBorderColor: '#2980b9',
-    lineColor: '#bdc3c7',
-    secondaryColor: '#f3f4f6',
-    tertiaryColor: '#fff',
-  },
-  securityLevel: 'loose',
-  fontFamily: 'PingFang SC',
-});
+const transformer = new Transformer();
 
 export default function AIMindmapGenerator() {
   const [content, setContent] = useState("");
-  const [mindmapCode, setMindmapCode] = useState("");
+  const [markdown, setMarkdown] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isRendered, setIsRendered] = useState(false);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const mmRef = useRef<Markmap | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleGenerate = async () => {
@@ -35,7 +24,7 @@ export default function AIMindmapGenerator() {
 
     setLoading(true);
     setError("");
-    setMindmapCode("");
+    setMarkdown("");
     setIsRendered(false);
 
     try {
@@ -49,15 +38,9 @@ export default function AIMindmapGenerator() {
       if (!response.ok) throw new Error(data.error || "生成失败");
 
       const code = data.mindmapCode;
-      // 极致清理：移除可能存在的 markdown 标记、多余空格和解释文字
-      let cleanedCode = code
-        .replace(/```mermaid\n?|```/g, "")
-        .replace(/mindmap\s+root/g, "mindmap\n  root") // 确保 root 在新行
-        .trim();
-      
-      // 检查代码是否以 mindmap 开头
-      const formattedCode = cleanedCode.startsWith("mindmap") ? cleanedCode : `mindmap\n${cleanedCode}`;
-      setMindmapCode(formattedCode);
+      // 清理可能存在的代码块标记
+      const cleanedMarkdown = code.replace(/```markdown\n?|```/g, "").trim();
+      setMarkdown(cleanedMarkdown);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -66,38 +49,37 @@ export default function AIMindmapGenerator() {
   };
 
   useEffect(() => {
-    const renderMermaid = async () => {
-      if (mindmapCode && containerRef.current) {
-        try {
-          // 彻底清除容器内容
-          containerRef.current.innerHTML = '';
-          const { svg } = await mermaid.render('mermaid-svg-' + Date.now(), mindmapCode);
-          containerRef.current.innerHTML = svg;
-          setIsRendered(true);
-          setError(""); // 成功渲染后清除错误
-        } catch (err) {
-          console.error("Mermaid 渲染错误:", err);
-          setError("导图语法解析失败，正在尝试自动修复并重新渲染...");
-          
-          // 尝试简单修复：如果是因为没有换行导致的
-          if (!mindmapCode.includes('\n')) {
-             const fixedCode = mindmapCode.replace(/\s+/g, '\n  ');
-             setMindmapCode(fixedCode);
-          } else {
-             setError("图形渲染失败，请尝试增加描述内容或重新生成。");
-          }
+    if (markdown && svgRef.current) {
+      try {
+        const { root } = transformer.transform(markdown);
+        
+        // 如果已经存在实例，则更新，否则创建
+        if (mmRef.current) {
+          mmRef.current.setData(root);
+          mmRef.current.fit();
+        } else {
+          mmRef.current = Markmap.create(svgRef.current, {
+            autoFit: true,
+            duration: 500,
+            padding: [20, 20, 20, 20],
+          }, root);
         }
+        setIsRendered(true);
+        setError("");
+      } catch (err) {
+        console.error("Markmap 渲染错误:", err);
+        setError("脑图渲染失败，请尝试重新生成。");
       }
-    };
-
-    renderMermaid();
-  }, [mindmapCode]);
+    }
+  }, [markdown]);
 
   const handleDownload = async () => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !mmRef.current) return;
 
     try {
-      // html-to-image 对 SVG 处理有兼容性要求，增加点 padding 效果更好
+      // 在下载前先 fit 一下确保完整
+      await mmRef.current.fit();
+      
       const dataUrl = await toPng(containerRef.current, { 
         cacheBust: true, 
         pixelRatio: 2,
@@ -118,6 +100,10 @@ export default function AIMindmapGenerator() {
     }
   };
 
+  const handleZoomIn = () => mmRef.current?.rescale(1.2);
+  const handleZoomOut = () => mmRef.current?.rescale(0.8);
+  const handleFit = () => mmRef.current?.fit();
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <Link href="/" className="inline-flex items-center text-sm text-gray-500 hover:text-blue-600 mb-8 transition-colors">
@@ -130,8 +116,8 @@ export default function AIMindmapGenerator() {
           <Network className="h-6 w-6 text-blue-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">AI 思维导图</h1>
-          <p className="text-gray-500 text-sm">输入一段文字，AI 将自动分析层级并生成精美的思维导图（脑图）。</p>
+          <h1 className="text-2xl font-bold text-gray-900">AI 思维导图 (XMind 风格)</h1>
+          <p className="text-gray-500 text-sm">输入一段文字，AI 将自动分析层级并生成精美的交互式脑图。</p>
         </div>
       </div>
 
@@ -167,7 +153,16 @@ export default function AIMindmapGenerator() {
         {/* 预览区域 */}
         <div className="xl:col-span-8 flex flex-col items-center">
           <div className="w-full flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-500">导图预览 (支持下载)</span>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-gray-500">导图预览 (可缩放/拖拽)</span>
+              {isRendered && (
+                <div className="flex items-center bg-gray-100 rounded-lg p-1 gap-1">
+                  <button onClick={handleZoomIn} className="p-1.5 hover:bg-white rounded shadow-sm transition-all" title="放大"><ZoomIn className="w-4 h-4 text-gray-600" /></button>
+                  <button onClick={handleZoomOut} className="p-1.5 hover:bg-white rounded shadow-sm transition-all" title="缩小"><ZoomOut className="w-4 h-4 text-gray-600" /></button>
+                  <button onClick={handleFit} className="p-1.5 hover:bg-white rounded shadow-sm transition-all" title="自适应"><Maximize className="w-4 h-4 text-gray-600" /></button>
+                </div>
+              )}
+            </div>
             {isRendered && (
               <div className="flex gap-2">
                 <button 
@@ -188,36 +183,64 @@ export default function AIMindmapGenerator() {
             )}
           </div>
 
-          <div className="w-full h-[600px] bg-white rounded-3xl border border-gray-100 shadow-inner flex items-center justify-center overflow-auto p-8 relative">
-            <div 
-              ref={containerRef} 
-              className="w-full h-full flex items-center justify-center"
-            >
-              {!mindmapCode && !loading && (
-                <div className="flex flex-col items-center justify-center text-gray-300">
-                  <Network className="w-16 h-16 mb-4 opacity-10" />
-                  <p className="text-sm">生成的思维导图将在这里展示</p>
-                </div>
-              )}
-              {loading && (
-                <div className="flex flex-col items-center justify-center text-blue-600">
-                  <Loader2 className="w-10 h-10 animate-spin mb-4" />
-                  <p className="text-sm font-medium">AI 正在深度思考中...</p>
-                </div>
-              )}
-            </div>
+          <div 
+            ref={containerRef}
+            className="w-full h-[600px] bg-white rounded-3xl border border-gray-100 shadow-inner flex items-center justify-center overflow-hidden relative"
+          >
+            <svg 
+              ref={svgRef} 
+              className="w-full h-full touch-none"
+              style={{ outline: 'none' }}
+            />
+            
+            {!markdown && !loading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300 pointer-events-none">
+                <Network className="w-16 h-16 mb-4 opacity-10" />
+                <p className="text-sm">生成的 XMind 风格脑图将在这里展示</p>
+              </div>
+            )}
+            {loading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-blue-600 bg-white/80 backdrop-blur-sm z-10">
+                <Loader2 className="w-10 h-10 animate-spin mb-4" />
+                <p className="text-sm font-medium">AI 正在构建知识脑图...</p>
+              </div>
+            )}
           </div>
           
           <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-full">
             <div className="flex gap-2">
               <Layout className="w-4 h-4 text-gray-400" />
-              <p className="text-xs text-gray-500 leading-relaxed">
-                思维导图是基于 AI 对文本层级的理解自动生成的。如果结构不够理想，请尝试在输入时使用明显的标题、数字列表或更清晰的层级。
-              </p>
+              <div className="text-xs text-gray-500 leading-relaxed">
+                <p className="font-bold mb-1">交互说明：</p>
+                <ul className="list-disc pl-4 space-y-0.5">
+                  <li>鼠标滚轮或双指缩放脑图大小</li>
+                  <li>左键点击并拖拽可移动位置</li>
+                  <li>点击分支末端的圆点可收起/展开子节点</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      
+      <style jsx global>{`
+        .markmap {
+          font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        .markmap-node {
+          cursor: pointer;
+        }
+        .markmap-node div {
+          padding: 4px 8px;
+          border-radius: 4px;
+          background: white;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .markmap-link {
+          stroke-width: 2px;
+          transition: all 0.3s;
+        }
+      `}</style>
     </div>
   );
 }
