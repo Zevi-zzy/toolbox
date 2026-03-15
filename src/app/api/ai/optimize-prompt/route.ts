@@ -12,13 +12,14 @@ export async function POST(req: Request) {
 
     // 鉴权与次数限制检查
     const supabase = createRouteClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (!session) {
+    if (authError || !user) {
+      console.error('Auth Error:', authError);
       return NextResponse.json({ error: '请先登录后使用' }, { status: 401 });
     }
 
-    const { allowed } = await checkUsage(session.user.id);
+    const { allowed } = await checkUsage(user.id);
     if (!allowed) {
       return NextResponse.json({ error: '免费额度已用完，请升级 Pro 或联系商务合作' }, { status: 403 });
     }
@@ -58,11 +59,11 @@ export async function POST(req: Request) {
     const optimizedPrompt = data.choices[0].message.content;
 
     // 成功后增加使用次数
-    await incrementUsage(session.user.id);
+    await incrementUsage(user.id);
 
     return NextResponse.json({ optimizedPrompt });
-  } catch (error) {
+  } catch (error: any) {
     console.error('API Route Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

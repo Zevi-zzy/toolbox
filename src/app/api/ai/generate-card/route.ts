@@ -12,13 +12,14 @@ export async function POST(req: Request) {
 
     // 鉴权与次数限制检查
     const supabase = createRouteClient();
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (!session) {
+    if (authError || !user) {
+      console.error('Auth Error:', authError);
       return NextResponse.json({ error: '请先登录后使用' }, { status: 401 });
     }
 
-    const { allowed } = await checkUsage(session.user.id);
+    const { allowed } = await checkUsage(user.id);
     if (!allowed) {
       return NextResponse.json({ error: '免费额度已用完，请升级 Pro 或联系商务合作' }, { status: 403 });
     }
@@ -27,6 +28,9 @@ export async function POST(req: Request) {
     const truncatedContent = content.slice(0, 10000);
 
     const apiKey = process.env.MINIMAX_API_KEY;
+    if (!apiKey) {
+      throw new Error('MINIMAX_API_KEY is not configured');
+    }
     const url = 'https://api.minimax.io/v1/text/chatcompletion_v2';
 
     const response = await fetch(url, {
@@ -60,14 +64,19 @@ export async function POST(req: Request) {
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error('MiniMax API Error:', data);
-      return NextResponse.json({ error: 'API Error' }, { status: response.status });
+      const errorText = await response.text();
+      console.error('MiniMax API Error:', response.status, errorText);
+      return NextResponse.json({ error: `AI 服务响应异常 (${response.status})` }, { status: response.status });
     }
 
-    let rawContent = data.choices[0].message.content;
+    const data = await response.json();
+
+    let rawContent = data.choices?.[0]?.message?.content;
+    if (!rawContent) {
+      console.error('MiniMax unexpected response:', data);
+      throw new Error('AI 返回内容为空，请重试');
+    }
     
     // 鲁棒的 JSON 解析
     let cardData;
@@ -97,11 +106,11 @@ export async function POST(req: Request) {
     }
 
     // 成功后增加使用次数
-    await incrementUsage(session.user.id);
+    await incrementUsage(user.id);
 
     return NextResponse.json(cardData);
-  } catch (error) {
+  } catch (error: any) {
     console.error('API Route Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
