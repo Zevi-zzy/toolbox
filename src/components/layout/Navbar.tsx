@@ -59,6 +59,10 @@ export default function Navbar() {
           <Logo />
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-sm font-medium hover:text-blue-600">首页</Link>
+            <Link href="/dashboard/developer" className="text-sm font-medium hover:text-blue-600 flex items-center gap-1.5">
+              <Terminal className="w-4 h-4 text-blue-600" />
+              开发者中心
+            </Link>
             <Link href="/pricing" className="text-sm font-medium hover:text-blue-600">价格</Link>
             <Link href="/changelog" className="text-sm font-medium hover:text-blue-600">更新日志</Link>
             <a href="mailto:zevizhang@gmail.com" className="text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 transition-all">
