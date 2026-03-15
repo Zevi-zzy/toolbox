@@ -37,8 +37,8 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
                 },
                 radii: {
                   borderRadiusButton: '12px',
-                  buttonPadding: '12px',
-                  inputPadding: '12px',
+                  buttonBorderRadius: '12px',
+                  inputBorderRadius: '12px',
                 }
               }
             }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createRouteClient } from '@/lib/supabase';
+import { createRouteClient } from '@/lib/supabase-server';
 import { checkUsage, incrementUsage } from '@/lib/usage';
 
 export async function POST(req: Request) {

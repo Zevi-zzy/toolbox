@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createRouteClient } from '@/lib/supabase';
+import { createRouteClient } from '@/lib/supabase-server';
 import { checkUsage } from '@/lib/usage';
 
 export async function GET() {
