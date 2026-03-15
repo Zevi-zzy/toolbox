@@ -27,7 +27,6 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
 
         <Auth
           supabaseClient={supabase}
-          redirectTo={`${window.location.origin}/auth/callback`}
           appearance={{
             theme: ThemeSupa,
             variables: {
@@ -44,7 +43,7 @@ export default function AuthModal({ isOpen, onClose }: { isOpen: boolean; onClos
               }
             }
           }}
-          providers={['github']}
+          providers={[]}
           localization={{
             variables: {
               sign_in: {
