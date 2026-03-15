@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase";
 import AuthModal from "@/components/auth/AuthModal";
 import Logo from "@/components/layout/Logo";
-import { LogOut, ChevronDown, Zap, Terminal } from "lucide-react";
+import { LogOut, ChevronDown, Zap, Terminal, HelpCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -68,6 +68,10 @@ export default function Navbar() {
             <Link href="/dashboard/developer" className="text-sm font-medium hover:text-blue-600 flex items-center gap-1.5">
               <Terminal className="w-4 h-4 text-blue-600" />
               开发者中心
+            </Link>
+            <Link href="/help" className="text-sm font-medium hover:text-blue-600 flex items-center gap-1.5">
+              <HelpCircle className="w-4 h-4 text-blue-600" />
+              帮助中心
             </Link>
             <Link href="/pricing" className="text-sm font-medium hover:text-blue-600">价格</Link>
             <Link href="/changelog" className="text-sm font-medium hover:text-blue-600">更新日志</Link>

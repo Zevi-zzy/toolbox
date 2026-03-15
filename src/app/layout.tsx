@@ -40,6 +40,7 @@ export default function RootLayout({
                     <ul className="space-y-2 text-gray-500">
                       <li><Link href="/" className="hover:text-blue-600 transition-colors">所有工具</Link></li>
                       <li><Link href="/pricing" className="hover:text-blue-600 transition-colors">价格方案</Link></li>
+                      <li><Link href="/help" className="hover:text-blue-600 transition-colors">帮助中心</Link></li>
                       <li><Link href="/changelog" className="hover:text-blue-600 transition-colors">更新日志</Link></li>
                     </ul>
                   </div>
