@@ -53,11 +53,25 @@ export const toolServices = {
     const res = await callMiniMax([
       {
         role: 'system',
-        content: `你是一个专业的知识卡片设计师。提炼成 JSON：title, category, points(array), quote, color_theme(blue, indigo, emerald, rose, amber)。`,
+        content: `你是一个专业的知识卡片设计师。提炼成 JSON：title, category, points(array, max 5 items), quote, color_theme(blue, indigo, emerald, rose, amber)。`,
       },
-      { role: 'user', content: `请为以下内容生成知识卡片：\n\n${content}` },
+      { role: 'user', content: `请为以下内容生成知识卡片：\n\n${content.slice(0, 10000)}` },
     ], { type: "json_object" });
-    return JSON.parse(res);
+    
+    try {
+      const jsonStr = res.replace(/```json\n?|```/g, '').trim();
+      const data = JSON.parse(jsonStr);
+      if (!Array.isArray(data.points)) data.points = [String(data.points)];
+      return data;
+    } catch (e) {
+      return {
+        title: "知识卡片",
+        category: "通用",
+        points: ["内容提炼出错，请重试"],
+        quote: "保持好奇，持续学习",
+        color_theme: "blue"
+      };
+    }
   },
   'report-gen': async (content: string, type: string = 'weekly') => {
     const systemPrompt = type === 'weekly' 
