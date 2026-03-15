@@ -144,38 +144,38 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="text-center mb-16 flex flex-col items-center">
-        <Logo className="mb-8 scale-150 transform" />
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
+      <div className="text-center mb-20 flex flex-col items-center">
+        <Logo className="mb-10 scale-125 transform" />
+        <h1 className="text-5xl md:text-6xl font-black text-gray-900 mb-8 tracking-tight">
           极简 AI <span className="text-blue-600">办公工具箱</span>
         </h1>
-        <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
-          专为办公小白设计的 AI 工具集。不谈技术，只解难题。
-          toolbox.apexcosmos.com 助你效率飞跃。
+        <p className="text-xl text-gray-500 mb-12 max-w-2xl mx-auto leading-relaxed">
+          专为办公小白设计的 AI 工具集。不谈技术，只解难题。<br/>
+          <span className="text-sm font-mono text-gray-400">toolbox.apexcosmos.com</span> 助你效率飞跃。
         </p>
         
-        <div className="relative max-w-xl mx-auto mb-16">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+        <div className="relative max-w-2xl mx-auto mb-16 w-full">
+          <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+            <Search className="h-6 w-6 text-gray-400" />
           </div>
           <input
             type="text"
-            placeholder="搜索你想解决的问题，例如：写邮件, Excel 公式..."
+            placeholder="搜索你想解决的问题，例如：写邮件, Excel 公式, 总结网页..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-11 pr-4 py-4 border border-gray-200 rounded-2xl bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none"
+            className="block w-full pl-14 pr-6 py-5 border-2 border-gray-100 rounded-[2rem] bg-white shadow-xl shadow-blue-500/5 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-lg"
           />
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
+        <div className="flex flex-wrap justify-center gap-4 mb-20">
           {["全部", "轻量", "进阶", "高级"].map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${
+              className={`px-8 py-3 rounded-full text-base font-bold transition-all ${
                 activeCategory === category 
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" 
-                  : "bg-white text-gray-600 border border-gray-200 hover:border-blue-400 hover:text-blue-600"
+                  ? "bg-blue-600 text-white shadow-xl shadow-blue-500/25 scale-105" 
+                  : "bg-white text-gray-500 border-2 border-gray-50 hover:border-blue-200 hover:text-blue-600 shadow-sm"
               }`}
             >
               {category}
