@@ -7,6 +7,7 @@ import { Search, Mail, FileSpreadsheet, Wand2, FileText, Layout, MessageSquare, 
 import Link from "next/link";
 import { createClient } from "@/lib/supabase";
 import SkillsModal from "@/components/tools/SkillsModal";
+import Logo from "@/components/layout/Logo";
 import { DeveloperContent } from "@/components/developer/DeveloperContent";
 
 export default function Home() {
@@ -143,7 +144,8 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 flex flex-col items-center">
+        <Logo className="mb-8 scale-150 transform" />
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
           极简 AI <span className="text-blue-600">办公工具箱</span>
         </h1>
