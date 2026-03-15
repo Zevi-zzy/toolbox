@@ -46,13 +46,19 @@ export async function POST(req: Request) {
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      return NextResponse.json({ error: 'AI 服务异常' }, { status: response.status });
+      const errorText = await response.text();
+      console.error('MiniMax API Error:', response.status, errorText);
+      return NextResponse.json({ error: `AI 服务异常 (${response.status})` }, { status: response.status });
     }
 
-    const report = data.choices[0].message.content;
+    const data = await response.json();
+    const report = data.choices?.[0]?.message?.content;
+
+    if (!report) {
+      console.error('MiniMax Unexpected Response:', data);
+      throw new Error('AI 未能生成有效的汇报内容，请稍后重试');
+    }
 
     // 成功后增加使用次数
     await incrementUsage(user.id);

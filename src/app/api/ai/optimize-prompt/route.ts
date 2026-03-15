@@ -49,14 +49,19 @@ export async function POST(req: Request) {
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error('MiniMax API Error:', data);
-      return NextResponse.json({ error: data.base_resp?.status_msg || 'Failed to fetch from MiniMax' }, { status: response.status });
+      const errorText = await response.text();
+      console.error('MiniMax API Error:', response.status, errorText);
+      return NextResponse.json({ error: `AI 服务异常 (${response.status})` }, { status: response.status });
     }
 
-    const optimizedPrompt = data.choices[0].message.content;
+    const data = await response.json();
+    const optimizedPrompt = data.choices?.[0]?.message?.content;
+
+    if (!optimizedPrompt) {
+      console.error('MiniMax Unexpected Response:', data);
+      throw new Error('AI 未能生成有效的提示词，请稍后重试');
+    }
 
     // 成功后增加使用次数
     await incrementUsage(user.id);
