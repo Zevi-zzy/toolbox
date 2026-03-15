@@ -5,6 +5,30 @@ import Link from "next/link";
 
 const logs = [
   {
+    version: "V0.1.2",
+    date: "2026-03-16",
+    title: "商业化闭环：支付与权益系统上线",
+    description: "打通从工具使用到商业变现的完整链路，支持 Pro 会员升级。",
+    highlights: [
+      {
+        icon: Zap,
+        text: "Lemon Squeezy 集成：支持全球主流支付方式，实现自动化授权。"
+      },
+      {
+        icon: ShieldCheck,
+        text: "Pro 会员体系：付费解锁无限额度，消除工具使用焦虑。"
+      },
+      {
+        icon: Box,
+        text: "定价中心上线：简单透明的阶梯定价，满足不同用户需求。"
+      },
+      {
+        icon: Globe,
+        text: "Webhook 自动化：支付成功后秒级自动升级账户权益。"
+      }
+    ]
+  },
+  {
     version: "V0.1.1",
     date: "2026-03-15",
     title: "生态化升级：API & Skills 集成",

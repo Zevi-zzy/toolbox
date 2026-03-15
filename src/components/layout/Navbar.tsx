@@ -10,7 +10,7 @@ export default function Navbar() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [usage, setUsage] = useState<{ count: number; allowed: boolean } | null>(null);
+  const [usage, setUsage] = useState<{ count: number; allowed: boolean; isPro?: boolean } | null>(null);
   const supabase = createClient();
 
   const fetchUsage = async () => {
@@ -60,6 +60,7 @@ export default function Navbar() {
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-sm font-medium hover:text-blue-600">首页</Link>
+            <Link href="/pricing" className="text-sm font-medium hover:text-blue-600">价格</Link>
             <Link href="/changelog" className="text-sm font-medium hover:text-blue-600">更新日志</Link>
             <a href="mailto:zevizhang@gmail.com" className="text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 transition-all">
               商务合作：zevizhang@gmail.com
@@ -70,12 +71,21 @@ export default function Navbar() {
               <div className="flex items-center gap-4">
                 {/* 简易用量显示 */}
                 {usage && (
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
-                    <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                      可用额度: {10 - usage.count} / 10
-                    </span>
-                  </div>
+                  usage.isPro ? (
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-amber-50 rounded-full border border-amber-100">
+                      <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+                      <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                        Pro 会员
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
+                      <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                        可用额度: {10 - usage.count} / 10
+                      </span>
+                    </div>
+                  )
                 )}
 
                 <button 
@@ -112,17 +122,25 @@ export default function Navbar() {
                         {usage && (
                       <div className="px-4 py-3 border-b border-gray-50 mb-2">
                         <div className="flex justify-between items-center mb-2">
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">免费额度使用情况</p>
-                          <span className="text-[10px] font-bold text-blue-600">{usage.count}/10</span>
+                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                            {usage.isPro ? "Pro 会员权益" : "免费额度使用情况"}
+                          </p>
+                          <span className="text-[10px] font-bold text-blue-600">
+                            {usage.isPro ? "无限额度" : `${usage.count}/10`}
+                          </span>
                         </div>
-                        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full transition-all duration-500 ${usage.count >= 10 ? 'bg-red-500' : 'bg-blue-600'}`}
-                            style={{ width: `${Math.min((usage.count / 10) * 100, 100)}%` }}
-                          ></div>
-                        </div>
-                        {usage.count >= 10 && (
-                          <p className="text-[10px] text-red-500 mt-2 font-medium">额度已用完，请联系合作</p>
+                        {!usage.isPro && (
+                          <>
+                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full transition-all duration-500 ${usage.count >= 10 ? 'bg-red-500' : 'bg-blue-600'}`}
+                                style={{ width: `${Math.min((usage.count / 10) * 100, 100)}%` }}
+                              ></div>
+                            </div>
+                            {usage.count >= 10 && (
+                              <p className="text-[10px] text-red-500 mt-2 font-medium">额度已用完，请升级解锁</p>
+                            )}
+                          </>
                         )}
                       </div>
                     )}

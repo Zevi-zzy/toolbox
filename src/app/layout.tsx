@@ -29,6 +29,7 @@ export default function RootLayout({
               <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
                 <p>© 2026 Toolbox - toolbox.apexcosmos.com. All rights reserved.</p>
                 <div className="flex items-center gap-6">
+                  <Link href="/pricing" className="hover:text-blue-600 transition-colors">价格方案</Link>
                   <Link href="/changelog" className="hover:text-blue-600 transition-colors">更新日志</Link>
                   <a href="mailto:zevizhang@gmail.com" className="hover:text-blue-600 transition-colors">联系我们</a>
                 </div>
